@@ -81,7 +81,7 @@ Decision: <Recommended | Consume with Caution | Not Recommended>
 Reason: <max 6 words>
 """
 
-    model = genai.GenerativeModel("gemini-pro")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     response = model.generate_content(prompt)
     return response.text.strip()
 
