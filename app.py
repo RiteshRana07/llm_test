@@ -104,13 +104,15 @@ Give a clear recommendation based on the Rules which is mentioned above and stri
 st.title("🥗 FoodScan – Smart Food Analyzer")
 
 st.subheader("👤 Health Profile")
-age = st.number_input("Age", 1, 120, 25)
+age = st.number_input("Age", 1, 120, 24)
+diet = st.selectbox("Diet Type", ["Vegetarian", "Non-Vegetarian"])
 diabetes = st.checkbox("Diabetes")
 bp = st.checkbox("High Blood Pressure")
 heart = st.checkbox("Heart Disease")
 
 user_profile = {
     "age": age,
+    "diet": diet,
     "diabetes": diabetes,
     "bp": bp,
     "heart": heart,
