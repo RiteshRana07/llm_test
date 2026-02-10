@@ -45,8 +45,8 @@ def get_product_from_api(barcode):
 
     product = data.get("product", {})
     nutriments = product.get("nutriments", {})
-
-   return {
+    
+    return {
        "name": product.get("product_name", "Unknown"),
        "nutriments": product.get("nutriments", {}),
        "ingredients": product.get("ingredients_text", "No ingredients present"),
