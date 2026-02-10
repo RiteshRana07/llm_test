@@ -56,31 +56,44 @@ def get_product_from_api(barcode):
 
 def health_decision(user, product):
     prompt = f"""
-User Profile:
-Age: {user['age']}
-Diabetes: {user['diabetes']}
-BP: {user['bp']}
-Heart Disease: {user['heart']}
+You are a food health recommendation system.
 
-Nutrition (per 100g):
-Sugar: {product['sugar']}
-Salt: {product['salt']}
-Saturated Fat: {product['fat']}
+User profile:
+- Diabetes: {user['diabetes']}
+- BP: {user['bp']}
+- Heart disease: {user['heart']}
+- Age: {user['age']}
+- Diet: {user['diet']}
+
+Food nutrition (per 100g):
+- Sugar: {product['nutriments'].get('sugars_100g', 0)}
+- Salt: {product['nutriments'].get('salt_100g', 0)}
+- Saturated Fat: {product['nutriments'].get('saturated-fat_100g', 0)}
 
 Rules:
+0. If ingredients is not present -> Not Recommended
 1. Diabetes AND sugar > 10 → Not Recommended
 2. BP AND salt > 0.6 → Not Recommended
 3. Heart disease AND fat > 5 → Consume with Caution
 4. Age < 5 AND sugar > 8 → Not Recommended
 5. Age 5–12 AND sugar > 8 → Consume with Caution
-6. Salt > 1.5 → Not Recommended
-7. Sugar > 15 → Not Recommended
-8. Fat > 6 → Not Recommended
-9. Else → Recommended
+6. Age > 60 AND salt > 0.5 → Consume with Caution
+7. Age > 60 AND fat > 6 → Consume with Caution
+8. Else → Recommended
+9. Sugar > 10 AND sugar ≤ 15 → Consume with Caution
+10. Salt > 1.0 → Not Recommended
+11. Salt > 0.6 AND salt ≤ 1.0 → Consume with Caution
+12. Saturated fat > 10 → Not Recommended
+13. Saturated fat > 5 AND fat ≤ 10 → Consume with Caution
+14. Sugar > 10 AND salt > 0.6 → Not Recommended
+15. Sugar > 10 AND fat > 5 → Not Recommended
+16. Age > 60 AND sugar > 8 AND salt > 0.5 → Not Recommended
+17. Age ≤ 12 AND (sugar > 12 OR salt > 0.8) → Not Recommended
+18. Else → Recommended
 
-Output format:
-Decision: <Recommended | Consume with Caution | Not Recommended>
-Reason: <max 6 words>
+Give a clear recommendation based on the Rules which is mentioned above and strictly go through and follow the Rules:
+- Recommended / Consume with caution / Not recommended
+- Explain why in simple language with 30 words.
 """
 
     model = genai.GenerativeModel("gemini-2.5-flash")
