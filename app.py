@@ -19,17 +19,19 @@ def safe_float(value):
         return 0.0
 
 def scan_barcode(image):
-    """
-    Cloud-compatible barcode detection using OpenCV
-    """
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     detector = cv2.barcode_BarcodeDetector()
-    ok, decoded_info, decoded_type, points = detector.detectAndDecode(gray)
 
-    if not ok or not decoded_info:
+    decoded_info, decoded_type, points = detector.detectAndDecode(gray)
+
+    if decoded_info is None or decoded_info == "":
         return None
 
-    return decoded_info[0]
+    # decoded_info may be list or string depending on OpenCV version
+    if isinstance(decoded_info, list):
+        return decoded_info[0]
+
+    return decoded_info
 
 def get_product_from_api(barcode):
     url = f"https://world.openfoodfacts.net/api/v2/product/{barcode}"
