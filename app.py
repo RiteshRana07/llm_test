@@ -10,7 +10,7 @@ import google.generativeai as genai
 st.set_page_config(page_title="FoodScan", layout="centered")
 
 # Configure Gemini API from Streamlit Secrets
-genai.configure(api_key="AIzaSyCpbhnz-ar-UnjTqCYacbwl1R8xcr6cWas")
+genai.configure(api_key=st.sectrets["GEMINI_API_KEY"])
 
 # ---------------- UTILS ----------------
 def safe_float(value):
