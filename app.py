@@ -46,12 +46,11 @@ def get_product_from_api(barcode):
     product = data.get("product", {})
     nutriments = product.get("nutriments", {})
 
-    return {
+   return {
         "name": product.get("product_name", "Unknown"),
-        "ingredients": product.get("ingredients_text", "Not available"),
-        "sugar": safe_float(nutriments.get("sugars_100g")),
-        "salt": safe_float(nutriments.get("salt_100g")),
-        "fat": safe_float(nutriments.get("saturated-fat_100g")),
+        "nutriments": product.get("nutriments", {}),
+        "ingredients": product.get("ingredients_text", "No ingredients present"),
+        "labels": product.get("labels", "")
     }
 
 def health_decision(user, product):
