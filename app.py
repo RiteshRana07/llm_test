@@ -183,10 +183,11 @@ Reason: <Max 10 words, mention only the main health factor>
 
 
    
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")  # stable model
     response = model.generate_content(prompt)
 
-    return f"Decision: {decision}\nReason: {reason}\n\nExplanation: {response.text.strip()}" 
+    return response.text
+ 
 
 
 
@@ -243,7 +244,7 @@ if image is not None:
 
             st.subheader("🧠 Health Recommendation")
             with st.spinner("Analyzing..."):
-                result = health_decision(user_profile, product)
+                result = health_decision(user, product)
 
             st.info(result)
         else:
