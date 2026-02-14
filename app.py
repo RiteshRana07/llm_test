@@ -58,9 +58,9 @@ def health_decision(user, product):
 You are a food health recommendation system.
 
 User profile:
-- Diabetes: {user['diabetes']}
-- BP: {user['bp']}
-- Heart disease: {user['heart']}
+- Diabetes: {"Present" if user['diabetes'] else "Not Present (Ignore diabetes rules)"}
+- BP: {"Present" if user['bp'] else "Not Present (Ignore BP rules)"}
+- Heart disease: {"Present" if user['heart'] else "Not Present (Ignore heart disease rules)"}
 - Age: {user['age']}
 - Diet: {user['diet']}
 
