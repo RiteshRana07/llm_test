@@ -244,7 +244,7 @@ if image is not None:
 
             st.subheader("🧠 Health Recommendation")
             with st.spinner("Analyzing..."):
-                result = health_decision(user, product)
+                result = health_decision(user_profile, product)
 
             st.info(result)
         else:
