@@ -65,7 +65,7 @@ User profile:
 - Diet: {user['diet']}
 
 Food nutrition (per 100g):
-- ingredients: {product.get("ingredients_text", "No ingredients present")}
+- ingredients: {product.get("ingredients_text", 0)}
 - Sugar: {product['nutriments'].get('sugars_100g', 0)}
 - Salt: {product['nutriments'].get('salt_100g', 0)}
 - Saturated Fat: {product['nutriments'].get('saturated-fat_100g', 0)}
