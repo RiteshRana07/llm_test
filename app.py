@@ -53,7 +53,7 @@ def get_product_from_api(barcode):
        "labels": product.get("labels", "")
    }
 
-def health_decision(user, product):
+'''def health_decision(user, product):
     nutriments = product.get("nutriments", {})
     sugar = float(nutriments.get("sugars_100g", 0) or 0)
     salt = float(nutriments.get("salt_100g", 0) or 0)
@@ -138,12 +138,61 @@ Final system decision: {decision}
 Reason: {reason}
 
 Explain why in simple language with 30 words.
+"""   '''
+
+def health_decision(user, product):
+
+    nutriments = product.get('product1' , {})
+    sugar = nutriments.get("sugars_100g", 0)
+    salt = nutriments.get("salt_100g", 0)
+    fat = nutriments.get("saturated-fat_100g", 0)
+
+    prompt = f"""
+You are a health-based food recommendation assistant.
+
+Your task is to analyze the user's health profile and the product's nutritional values, then decide whether the user should consume the product or avoid it.
+
+User Health Profile:
+- Diabetes: {user['diabetes']}
+- Blood Pressure (BP): {user['bp']}
+- Heart Condition: {user['heart']}
+- Age: {user['age']}
+
+Product Nutrition (per 100g):
+- Sugar: {sugar} g
+- Salt: {salt} g
+- Saturated Fat: {fat} g
+
+Decision Rules:
+1. If the user has diabetes and sugar > 10 → Not Recommended
+2. If the user has BP issues and salt > 0.6 → Not Recommended
+3. If the user has a heart condition and saturated fat > 5 → Consume with Caution
+4. If age < 5 and sugar is high or the food is junk → Not Recommended
+5. If age is between 5–12 and sugar > 8 → Consume with Caution
+6. If age > 60 and salt > 0.5 → Consume with Caution
+7. If age > 60 and fat > 6 → Consume with Caution
+8. If none of the above conditions apply → Recommended
+
+Now, based on the rules above, generate a clear and personalized recommendation for the user.
+
+Strictly follow this output format:
+
+Decision: <text>
+Reason: <Max 10 words, mention only the main health factor>
 """
 
+
+   
     model = genai.GenerativeModel("gemini-2.5-flash")
     response = model.generate_content(prompt)
 
-    return f"Decision: {decision}\nReason: {reason}\n\nExplanation: {response.text.strip()}"
+    return f"Decision: {decision}\nReason: {reason}\n\nExplanation: {response.text.strip()}" 
+
+
+
+
+
+
 
 
 # ---------------- UI ----------------
