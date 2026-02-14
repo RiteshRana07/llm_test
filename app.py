@@ -140,7 +140,7 @@ Reason: {reason}
 Explain why in simple language with 30 words.
 """
 
-    model = genai.GenerativeModel("gemini-pro")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     response = model.generate_content(prompt)
 
     return f"Decision: {decision}\nReason: {reason}\n\nExplanation: {response.text.strip()}"
