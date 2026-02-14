@@ -91,7 +91,7 @@ Rules:
 17. Age ≤ 12 AND (sugar > 12 OR salt > 0.8) → Not Recommended
 18. Else → Recommended
 
-Give a clear recommendation by strictly following the Rules above. Apply disease-specific rules ONLY if the corresponding user profile (Diabetes, BP, Heart disease) is marked True; otherwise ignore those disease rules.
+Give a clear recommendation by strictly following the Rules above. Disease-specific rules (Diabetes, BP, Heart disease) must be applied ONLY when the user profile for that condition is True. If the condition is False, ignore that rule completely.
 
 - Recommended / Consume with caution / Not recommended
 - Explain why in simple language with 30 words.
