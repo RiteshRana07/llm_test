@@ -54,52 +54,97 @@ def get_product_from_api(barcode):
    }
 
 def health_decision(user, product):
+    nutriments = product.get("nutriments", {})
+    sugar = float(nutriments.get("sugars_100g", 0) or 0)
+    salt = float(nutriments.get("salt_100g", 0) or 0)
+    fat = float(nutriments.get("saturated-fat_100g", 0) or 0)
+    ingredients = product.get("ingredients_text", "")
+
+    # -------- STRICT RULE ENGINE (PRIMARY LOGIC) --------
+    # Rule 0
+    if not ingredients:
+        decision = "Not Recommended"
+        reason = "Ingredients information missing"
+
+    # Disease rules (ONLY when user selects profile)
+    elif user["diabetes"] and sugar > 10:
+        decision = "Not Recommended"
+        reason = "High sugar unsafe for diabetes"
+
+    elif user["bp"] and salt > 0.6:
+        decision = "Not Recommended"
+        reason = "High salt unsafe for BP"
+
+    elif user["heart"] and fat > 5:
+        decision = "Consume with Caution"
+        reason = "High fat for heart patients"
+
+    # Age rules (always apply)
+    elif user["age"] < 5 and sugar > 8:
+        decision = "Not Recommended"
+        reason = "Too much sugar for child"
+
+    elif 5 <= user["age"] <= 12 and sugar > 8:
+        decision = "Consume with Caution"
+        reason = "High sugar for children"
+
+    elif user["age"] > 60 and salt > 0.5:
+        decision = "Consume with Caution"
+        reason = "Salt not ideal for seniors"
+
+    elif user["age"] > 60 and fat > 6:
+        decision = "Consume with Caution"
+        reason = "High fat for elderly"
+
+    # General nutrition rules
+    elif sugar > 10 and salt > 0.6:
+        decision = "Not Recommended"
+        reason = "High sugar and salt"
+
+    elif sugar > 10 and fat > 5:
+        decision = "Not Recommended"
+        reason = "High sugar and fat"
+
+    elif sugar > 15 or salt > 1.0 or fat > 10:
+        decision = "Not Recommended"
+        reason = "Very unhealthy nutrition levels"
+
+    elif (10 < sugar <= 15) or (0.6 < salt <= 1.0) or (5 < fat <= 10):
+        decision = "Consume with Caution"
+        reason = "Moderate unhealthy nutrients"
+
+    else:
+        decision = "Recommended"
+        reason = "Nutritionally safe choice"
+
+    # -------- OPTIONAL: Gemini Explanation (your original prompt) --------
     prompt = f"""
 You are a food health recommendation system.
 
 User profile:
-- Diabetes: {"Present" if user['diabetes'] else "Not Present (Ignore diabetes rules)"}
-- BP: {"Present" if user['bp'] else "Not Present (Ignore BP rules)"}
-- Heart disease: {"Present" if user['heart'] else "Not Present (Ignore heart disease rules)"}
+- Diabetes: {user['diabetes']}
+- BP: {user['bp']}
+- Heart disease: {user['heart']}
 - Age: {user['age']}
 - Diet: {user['diet']}
 
 Food nutrition (per 100g):
-- ingredients: {product.get("ingredients_text", 0)}
-- Sugar: {product['nutriments'].get('sugars_100g', 0)}
-- Salt: {product['nutriments'].get('salt_100g', 0)}
-- Saturated Fat: {product['nutriments'].get('saturated-fat_100g', 0)}
+- ingredients: {ingredients}
+- Sugar: {sugar}
+- Salt: {salt}
+- Saturated Fat: {fat}
 
-Rules:
-0. If ingredients is not present -> Not Recommended
-1. Diabetes AND sugar > 10 → Not Recommended
-2. BP AND salt > 0.6 → Not Recommended
-3. Heart disease AND fat > 5 → Consume with Caution
-4. Age < 5 AND sugar > 8 → Not Recommended
-5. Age 5–12 AND sugar > 8 → Consume with Caution
-6. Age > 60 AND salt > 0.5 → Consume with Caution
-7. Age > 60 AND fat > 6 → Consume with Caution
-8. Else → Recommended
-9. Sugar > 10 AND sugar ≤ 15 → Consume with Caution
-10. Salt > 1.0 → Not Recommended
-11. Salt > 0.6 AND salt ≤ 1.0 → Consume with Caution
-12. Saturated fat > 10 → Not Recommended
-13. Saturated fat > 5 AND fat ≤ 10 → Consume with Caution
-14. Sugar > 10 AND salt > 0.6 → Not Recommended
-15. Sugar > 10 AND fat > 5 → Not Recommended
-16. Age > 60 AND sugar > 8 AND salt > 0.5 → Not Recommended
-17. Age ≤ 12 AND (sugar > 12 OR salt > 0.8) → Not Recommended
-18. Else → Recommended
+Final system decision: {decision}
+Reason: {reason}
 
-Give a clear recommendation by strictly following the Rules above. Disease-specific rules (Diabetes, BP, Heart disease) must be applied ONLY when the user profile for that condition is True. If the condition is False, ignore that rule completely.
-
-- Recommended / Consume with caution / Not recommended
-- Explain why in simple language with 30 words.
+Explain why in simple language with 30 words.
 """
 
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel("gemini-pro")
     response = model.generate_content(prompt)
-    return response.text.strip()
+
+    return f"Decision: {decision}\nReason: {reason}\n\nExplanation: {response.text.strip()}"
+
 
 # ---------------- UI ----------------
 st.title("🥗 FoodScan – Smart Food Analyzer")
