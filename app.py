@@ -159,9 +159,9 @@ User Health Profile:
 - Age: {user['age']}
 
 Product Nutrition (per 100g):
-- Sugar: {sugar} g
-- Salt: {salt} g
-- Saturated Fat: {fat} g
+- Sugar: {product['nutriments'].get('sugars_100g', 0)}
+- Salt: {product['nutriments'].get('salt_100g', 0)}
+- Saturated Fat: {product['nutriments'].get('saturated-fat_100g', 0)}
 
 Decision Rules:
 1. If the user has diabetes and sugar > 10 → Not Recommended
