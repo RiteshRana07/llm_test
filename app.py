@@ -72,13 +72,14 @@ User Health Profile:
 - Heart Condition: {user['heart']}
 - Age: {user['age']}
 
-if (ingredients: {product.get("ingredients_text", "")} == False):
-    print("Ingredients is not present")
+if (ingredients: {product.get("ingredients_text", "")} is True):
+    Product Nutrition (per 100g):
+    - Sugar: {product['nutriments'].get('sugars_100g', 0)}
+    - Salt: {product['nutriments'].get('salt_100g', 0)}
+    - Saturated Fat: {product['nutriments'].get('saturated-fat_100g', 0)}
 
-Product Nutrition (per 100g):
-- Sugar: {product['nutriments'].get('sugars_100g', 0)}
-- Salt: {product['nutriments'].get('salt_100g', 0)}
-- Saturated Fat: {product['nutriments'].get('saturated-fat_100g', 0)}
+else:
+    print("Ingredients is not present")
 
 Decision Rules:
 0. If ingredients is not present → Not Recommended
