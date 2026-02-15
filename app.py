@@ -3,13 +3,13 @@ import cv2
 import requests
 import numpy as np
 from PIL import Image
-import google.generativeai as genai
+from groq import Groq
 
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="FoodScan", layout="centered")
 
 # Configure Gemini API from Streamlit Secrets
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 # ---------------- UTILS ----------------
 def safe_float(value):
@@ -56,10 +56,16 @@ def get_product_from_api(barcode):
 
 def health_decision(user, product):
 
-    nutriments = product.get('product1' , {})
+    nutriments = product.get('nutriments', {})  # FIXED BUG
     sugar = nutriments.get("sugars_100g", 0)
     salt = nutriments.get("salt_100g", 0)
     fat = nutriments.get("saturated-fat_100g", 0)
+
+    ingredients = product.get("ingredients") or ""
+
+    # Rule 0 (keep your logic intact)
+    if not ingredients or ingredients.lower() in ["not available", "no ingredients present", "unknown"]:
+        return "Decision: Not Recommended\nReason: Ingredients information missing"
 
     prompt = f"""
 You are a health-based food recommendation assistant.
@@ -72,14 +78,11 @@ User Health Profile:
 - Heart Condition: {user['heart']}
 - Age: {user['age']}
 
-if (ingredients: {product.get("ingredients_text", "")} is True):
-    Product Nutrition (per 100g):
-    - Sugar: {product['nutriments'].get('sugars_100g', 0)}
-    - Salt: {product['nutriments'].get('salt_100g', 0)}
-    - Saturated Fat: {product['nutriments'].get('saturated-fat_100g', 0)}
 
-else:
-    print("Ingredients is not present")
+Product Nutrition (per 100g):
+- Sugar: {product['nutriments'].get('sugars_100g', 0)}
+- Salt: {product['nutriments'].get('salt_100g', 0)}
+- Saturated Fat: {product['nutriments'].get('saturated-fat_100g', 0)}
 
 Decision Rules:
 0. If ingredients is not present → Not Recommended
@@ -100,12 +103,17 @@ Decision: <text>
 Reason: <Max 10 words, mention only the main health factor>
 """
 
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": "You strictly follow health rules."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.1
+    )
 
-   
-    model = genai.GenerativeModel("gemini-2.5-flash")  # stable model
-    response = model.generate_content(prompt)
+    return response.choices[0].message.content
 
-    return response.text
  
 
 
@@ -149,7 +157,7 @@ else:
         image = np.array(Image.open(cam).convert("RGB"))
 
 if image is not None:
-    st.image(image, caption="Input Image", use_column_width=True)
+    st.image(image, caption="Input Image", width="stretch")
 
     barcode = scan_barcode(image)
     if barcode:
